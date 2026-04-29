@@ -1,0 +1,189 @@
+{
+  "easycom": {
+    "autoscan": true,
+    "custom": {
+      "^wd-(.*)": "@wot-ui/ui/components/wd-$1/wd-$1.vue",
+      "^PageNavbar$": "@/components/page-navbar/index.vue"
+    }
+  },
+  "pages": [
+    {
+      "path": "pages/tabs/home",
+      "style": {
+        "navigationBarTitleText": "首页",
+        "navigationStyle": "custom",
+        "enablePullDownRefresh": true
+      }
+    },
+    {
+      "path": "pages/login/index",
+      "style": {
+        "navigationBarTitleText": "登录",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/tabs/admin",
+      "style": {
+        "navigationBarTitleText": "管理后台",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/tabs/user",
+      "style": {
+        "navigationBarTitleText": "我的",
+        "navigationStyle": "custom"
+      }
+    }
+  ],
+  "subPackages": [
+    {
+      "root": "pages-sub/shop",
+      "pages": [
+        {
+          "path": "index",
+          "style": {
+            "navigationBarTitleText": "商城",
+            "navigationStyle": "custom"
+          }
+        },
+        {
+          "path": "detail",
+          "style": {
+            "navigationBarTitleText": "商品详情",
+            "navigationStyle": "custom"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages-sub/order",
+      "pages": [
+        {
+          "path": "index",
+          "style": {
+            "navigationBarTitleText": "订单列表",
+            "navigationStyle": "custom"
+          }
+        },
+        {
+          "path": "detail",
+          "style": {
+            "navigationBarTitleText": "订单详情",
+            "navigationStyle": "custom"
+          }
+        }
+      ]
+    },
+    {
+      "root": "pages-sub/demo",
+      "pages": [
+        {
+          "path": "pay",
+          "style": {
+            "navigationBarTitleText": "支付示例",
+            "navigationStyle": "custom"
+          }
+        },
+        {
+          "path": "subscribe",
+          "style": {
+            "navigationBarTitleText": "订阅消息",
+            "navigationStyle": "custom"
+          }
+        },
+        {
+          "path": "location",
+          "style": {
+            "navigationBarTitleText": "定位示例",
+            "navigationStyle": "custom"
+          }
+        },
+        {
+          "path": "upload",
+          "style": {
+            "navigationBarTitleText": "上传组件",
+            "navigationStyle": "custom"
+          }
+        },
+        {
+          "path": "scan",
+          "style": {
+            "navigationBarTitleText": "扫码输入",
+            "navigationStyle": "custom"
+          }
+        },
+        {
+          "path": "list",
+          "style": {
+            "navigationBarTitleText": "通用列表",
+            "navigationStyle": "custom"
+          }
+        },
+        {
+          "path": "tabs-list",
+          "style": {
+            "navigationBarTitleText": "多标签列表",
+            "navigationStyle": "custom"
+          }
+        },
+        {
+          "path": "side-dock",
+          "style": {
+            "navigationBarTitleText": "侧边悬浮菜单",
+            "navigationStyle": "custom"
+          }
+        },
+        {
+          "path": "curtain",
+          "style": {
+            "navigationBarTitleText": "智能幕帘",
+            "navigationStyle": "custom"
+          }
+        },
+        {
+          "path": "form",
+          "style": {
+            "navigationBarTitleText": "复杂表单",
+            "navigationStyle": "custom"
+          }
+        }
+      ]
+    }
+  ],
+  "preloadRule": {
+    "pages/tabs/home": {
+      "network": "all",
+      "packages": ["pages-sub/shop"]
+    }
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#999999",
+    "selectedColor": "#2B9939",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/tabs/home",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/tabs/admin",
+        "text": "管理"
+      },
+      {
+        "pagePath": "pages/tabs/user",
+        "text": "我的"
+      }
+    ]
+  },
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "uniapp-wotui-demo",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "backgroundColor": "#F5F5F5"
+  },
+  "condition": {}
+}

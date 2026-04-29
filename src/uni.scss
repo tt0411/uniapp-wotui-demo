@@ -1,0 +1,25 @@
+/* uni.scss */
+
+/* 编译期静态基线，运行时主题由 src/theme/tokens.ts + App.ku.vue 注入 */
+$uni-primary: #2B9939;
+$uni-success: #34D399;
+$uni-warning: #FBBF24;
+$uni-danger: #EF4444;
+$uni-info: #3B82F6;
+
+$uni-text-color: #333333;
+$uni-text-color-secondary: #666666;
+$uni-text-color-grey: #999999;
+
+$uni-bg-color: #F5F5F5;
+$uni-bg-color-white: #FFFFFF;
+
+$uni-border-color: #E5E5E5;
+
+$uni-font-size-sm: 24rpx;
+$uni-font-size-base: 28rpx;
+$uni-font-size-lg: 32rpx;
+
+$uni-spacing-sm: 16rpx;
+$uni-spacing-base: 24rpx;
+$uni-spacing-lg: 32rpx;

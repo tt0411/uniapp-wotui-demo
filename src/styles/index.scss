@@ -1,0 +1,15 @@
+/* 全局样式入口 */
+
+/* IconFont 图标库（请替换为实际 iconfont 项目链接） */
+@import './iconfont.css';
+
+/* 基础工具类 */
+.safe-area-top {
+  padding-top: constant(safe-area-inset-top);
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: constant(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom);
+}

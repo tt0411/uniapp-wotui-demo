@@ -1,0 +1,14 @@
+/* IconFont 图标库 CSS
+ * 使用说明：
+ * 1. 前往 https://www.iconfont.cn 创建项目并选择 Symbol / Font class 方式
+ * 2. 下载代码或复制在线 CSS 链接替换下方内容
+ * 3. 如使用在线链接，直接将 @import url('xxx') 替换为 iconfont 提供的 CSS 地址
+ *
+ * 示例（Font class 方式）：
+ * @import url('//at.alicdn.com/t/c/font_xxxxxx_xxxxxx.css');
+ *
+ * 示例（Symbol 方式需配合 JS）：
+ * 在 App.vue onLaunch 中动态插入 script
+ */
+
+/* 默认空文件，请根据实际 iconfont 项目替换 */
