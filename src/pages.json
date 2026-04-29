@@ -129,6 +129,20 @@
           }
         },
         {
+          "path": "waterfall",
+          "style": {
+            "navigationBarTitleText": "瀑布流",
+            "navigationStyle": "custom"
+          }
+        },
+        {
+          "path": "waterfall-detail",
+          "style": {
+            "navigationBarTitleText": "笔记详情",
+            "navigationStyle": "custom"
+          }
+        },
+        {
           "path": "side-dock",
           "style": {
             "navigationBarTitleText": "侧边悬浮菜单",

@@ -17,6 +17,7 @@ const features = ref([
   { name: '扫码输入', path: '/pages-sub/demo/scan', icon: '▣' },
   { name: '通用列表', path: '/pages-sub/demo/list', icon: '☰' },
   { name: '多标签列表', path: '/pages-sub/demo/tabs-list', icon: '≡' },
+  { name: '瀑布流', path: '/pages-sub/demo/waterfall', icon: '▥' },
   { name: '侧边悬浮菜单', path: '/pages-sub/demo/side-dock', icon: '🧲' },
   { name: '智能幕帘', path: '/pages-sub/demo/curtain', icon: '🎭' },
   { name: '复杂表单', path: '/pages-sub/demo/form', icon: '📝' },
