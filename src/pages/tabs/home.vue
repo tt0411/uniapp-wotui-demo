@@ -27,18 +27,24 @@ const features = ref([
 ])
 
 const bannerList = ref([
-  { url: 'https://picsum.photos/750/300?random=1', title: 'Banner 1' },
-  { url: 'https://picsum.photos/750/300?random=2', title: 'Banner 2' },
+  { url: 'https://pro-shbihu.oss-cn-hangzhou.aliyuncs.com/bihu-image/bihu-web/uniapp-wotui-demo.png', title: 'Banner 1' },
 ])
 
 function navigateTo(path: string) {
   uni.navigateTo({ url: path })
 }
 
+// 图片预览
+function previewImage(currentUrl: string) {
+  const urls = bannerList.value.map(item => item.url)
+  uni.previewImage({
+    current: currentUrl,
+    urls: urls
+  })
+}
+
 onShow(() => {
-  const rsa = encryptRSA('123456')
   appStore.setActiveTab('/pages/tabs/home')
-  console.log('首页 onShow', rsa)
 })
 
 onPullDownRefresh(() => {
@@ -56,24 +62,25 @@ onPullDownRefresh(() => {
     <!-- 轮播图 -->
     <swiper class="banner" indicator-dots autoplay circular>
       <swiper-item v-for="(item, idx) in bannerList" :key="idx">
-        <image class="banner-img" :src="item.url" mode="aspectFill" />
+        <image class="banner-img" :src="item.url" mode="aspectFill" @click="previewImage(item.url)"/>
       </swiper-item>
     </swiper>
 
     <!-- 功能入口 -->
     <view class="feature-section">
       <view class="section-title">功能演示</view>
-      <view class="feature-grid">
-        <view
+      <wd-grid :column="4" :border="false" clickable>
+        <wd-grid-item
           v-for="item in features"
           :key="item.name"
-          class="feature-item"
+          :text="item.name"
           @click="navigateTo(item.path)"
         >
-          <text class="feature-icon">{{ item.icon }}</text>
-          <text class="feature-name">{{ item.name }}</text>
-        </view>
-      </view>
+          <template #icon>
+            <text class="feature-icon">{{ item.icon }}</text>
+          </template>
+        </wd-grid-item>
+      </wd-grid>
     </view>
 
     <CustomTabBar v-if="showTabBar" />
@@ -113,29 +120,12 @@ onPullDownRefresh(() => {
   margin-bottom: 16rpx;
 }
 
-.feature-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 24rpx;
-}
-
-.feature-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: calc(20% - 20rpx);
-  padding: 16rpx 0;
-}
-
 .feature-icon {
   font-size: 48rpx;
-  margin-bottom: 8rpx;
 }
 
-.feature-name {
-  font-size: 24rpx;
-  color: var(--app-text-secondary);
+:deep(.wd-grid-item__text) {
+  font-size: 26rpx !important;
 }
 
 </style>

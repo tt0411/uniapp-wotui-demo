@@ -16,6 +16,7 @@ const props = withDefaults(defineProps<{
   listKey?: string
   totalKey?: string
   immediate?: boolean
+  active?: boolean
   refresherEnabled?: boolean
   emptyText?: string
   errorText?: string
@@ -30,6 +31,7 @@ const props = withDefaults(defineProps<{
   pageStart: 1,
   pageSize: 10,
   immediate: true,
+  active: true,
   refresherEnabled: true,
   emptyText: '暂无数据',
   errorText: '加载失败，点击重试',
@@ -145,7 +147,7 @@ function measureList() {
 }
 
 async function calcHeight() {
-  if (!props.autoHeight) return
+  if (!props.autoHeight || !props.active) return
 
   const rect = await measure('.load-list')
   if (!rect) return
@@ -182,7 +184,7 @@ async function requestList(nextPage: number, mode: ListStatus) {
 }
 
 async function ensureScrollable() {
-  if (checkingScrollable || isBusy.value || isFinished.value || isError.value) return
+  if (!props.active || checkingScrollable || isBusy.value || isFinished.value || isError.value) return
 
   checkingScrollable = true
   await nextTick()
@@ -194,6 +196,7 @@ async function ensureScrollable() {
   const bodyHeight = Number(bodyRect?.height)
 
   if (!Number.isFinite(containerHeight) || !Number.isFinite(bodyHeight)) return
+  if (containerHeight <= 0) return
   if (bodyHeight <= containerHeight + 1 && !isFinished.value && !isError.value) {
     loadMore()
   }
@@ -244,6 +247,21 @@ watch(
   { deep: true }
 )
 
+watch(
+  () => props.active,
+  async (active) => {
+    if (!active) return
+    await nextTick()
+    await calcHeight()
+
+    if (list.value.length === 0 && props.immediate) {
+      reload()
+    } else {
+      ensureScrollable()
+    }
+  }
+)
+
 onMounted(() => {
   calcHeight()
   if (props.immediate) {
@@ -273,7 +291,7 @@ defineExpose({
     @scroll="handleScroll"
     @scrolltolower="loadMore"
   >
-    <view class="load-list__body">
+    <view :class="['load-list__body', { 'is-empty': list.length === 0, 'is-finished': isFinished }]">
       <view
         v-for="(item, index) in list"
         :key="item.id || item.key || index"
@@ -288,7 +306,7 @@ defineExpose({
       <view v-else-if="isEmpty" class="load-list__state">{{ emptyText }}</view>
       <view v-else-if="isError" class="load-list__state is-clickable" @click="retry">{{ errorText }}</view>
       <view v-else-if="isLoadingMore" class="load-list__state">{{ loadingText }}</view>
-      <view v-else-if="isFinished" class="load-list__state">{{ finishedText }}</view>
+      <view v-else-if="isFinished" class="load-list__state is-finished-state">{{ finishedText }}</view>
     </view>
   </scroll-view>
 </template>
@@ -301,9 +319,18 @@ defineExpose({
 }
 
 .load-list__body {
-  min-height: 100%;
   box-sizing: border-box;
   padding-bottom: calc(env(safe-area-inset-bottom) + 120rpx);
+}
+
+.load-list__body.is-empty {
+  min-height: 100%;
+}
+
+.load-list__body.is-finished {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .load-list__item {
@@ -319,6 +346,10 @@ defineExpose({
   text-align: center;
   font-size: 26rpx;
   color: var(--app-text-muted);
+}
+
+.load-list__state.is-finished-state {
+  margin-top: auto;
 }
 
 .load-list__state.is-clickable {

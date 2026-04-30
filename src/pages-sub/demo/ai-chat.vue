@@ -154,16 +154,20 @@ function handleConfirm() {
 }
 
 .chat-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - var(--status-bar-height) - 44px);
+  position: relative;
+  height: calc(100vh - var(--status-bar-height) - 64px);
+  overflow: hidden;
 }
 
 .chat-list {
-  flex: 1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   padding: 24rpx 20rpx;
-  overflow: hidden;
+  padding-bottom: calc(104rpx + env(safe-area-inset-bottom) + 24rpx);
+  box-sizing: border-box;
 }
 
 .msg-row {
@@ -178,7 +182,7 @@ function handleConfirm() {
 
 .msg-row-right {
   justify-content: flex-end;
-  padding-right: 38rpx;
+  padding-right: 20rpx;
 }
 
 .avatar {
@@ -269,6 +273,11 @@ function handleConfirm() {
 
 /* input bar */
 .input-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
   display: flex;
   align-items: center;
   padding: 16rpx 20rpx;
