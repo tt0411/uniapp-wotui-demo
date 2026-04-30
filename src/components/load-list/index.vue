@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, getCurrentInstance, nextTick, onMounted, ref, watch } from 'vue'
 
 type ApiFn = (params: Record<string, any>) => Promise<any>
 type ListStatus = 'idle' | 'loading' | 'refreshing' | 'loadingMore' | 'error'
@@ -8,6 +8,7 @@ const props = withDefaults(defineProps<{
   api: ApiFn
   params?: Record<string, any>
   height?: string
+  autoHeight?: boolean
   pageKey?: string
   pageSizeKey?: string
   pageStart?: number
@@ -23,6 +24,7 @@ const props = withDefaults(defineProps<{
 }>(), {
   params: () => ({}),
   height: '100vh',
+  autoHeight: false,
   pageKey: 'pageNo',
   pageSizeKey: 'pageSize',
   pageStart: 1,
@@ -42,20 +44,38 @@ const emit = defineEmits<{
   (e: 'loadMore'): void
 }>()
 
+const isDark = ref(false)
+try {
+  isDark.value = uni.getSystemInfoSync().theme === 'dark'
+} catch (_) {}
+uni.onThemeChange?.((result: any) => {
+  isDark.value = result.theme === 'dark'
+})
+const refresherStyle = computed(() => isDark.value ? 'white' : 'black')
+
 const list = ref<any[]>([])
 const page = ref(props.pageStart)
 const total = ref<number | null>(null)
 const status = ref<ListStatus>('idle')
 const refresherTriggered = ref(false)
+const computedHeight = ref('')
 let requestId = 0
+const instance = getCurrentInstance()
+let checkingScrollable = false
+
+const finalHeight = computed(() => {
+  if (props.autoHeight && computedHeight.value) return computedHeight.value
+  return props.height
+})
 
 const isRefreshing = computed(() => status.value === 'refreshing')
 const isLoadingMore = computed(() => status.value === 'loadingMore')
 const isLoading = computed(() => status.value === 'loading')
 const isError = computed(() => status.value === 'error')
+const isBusy = computed(() => isLoading.value || isRefreshing.value || isLoadingMore.value)
 const isEmpty = computed(() => !isLoading.value && !isError.value && list.value.length === 0)
 const isFinished = computed(() => {
-  if (isLoading.value || isRefreshing.value || isLoadingMore.value || isError.value) return false
+  if (isBusy.value || isError.value) return false
   if (total.value !== null) return list.value.length >= total.value
   return list.value.length > 0 && lastPageCount.value < props.pageSize
 })
@@ -98,10 +118,44 @@ function buildParams(nextPage: number) {
   }
 }
 
+function resetPaging() {
+  total.value = null
+  lastPageCount.value = props.pageSize
+}
+
+function canRequest(nextStatus: ListStatus) {
+  if (!props.api) return false
+  if (isBusy.value && nextStatus !== 'refreshing') return false
+  return nextStatus !== 'loadingMore' || !isFinished.value
+}
+
+function measure(selector: string) {
+  return new Promise<any>((resolve) => {
+    uni.createSelectorQuery().in(instance).select(selector).boundingClientRect(resolve).exec()
+  })
+}
+
+function measureList() {
+  return new Promise<any[]>((resolve) => {
+    const query = uni.createSelectorQuery().in(instance)
+    query.select('.load-list').boundingClientRect()
+    query.select('.load-list__body').boundingClientRect()
+    query.exec(resolve)
+  })
+}
+
+async function calcHeight() {
+  if (!props.autoHeight) return
+
+  const rect = await measure('.load-list')
+  if (!rect) return
+
+  computedHeight.value = `${uni.getSystemInfoSync().windowHeight - rect.top}px`
+  ensureScrollable()
+}
+
 async function requestList(nextPage: number, mode: ListStatus) {
-  if (!props.api) return
-  if ((isLoading.value || isRefreshing.value || isLoadingMore.value) && mode !== 'refreshing') return
-  if (mode === 'loadingMore' && isFinished.value) return
+  if (!canRequest(mode)) return
 
   const currentRequestId = ++requestId
   status.value = mode
@@ -118,6 +172,7 @@ async function requestList(nextPage: number, mode: ListStatus) {
     status.value = 'idle'
     refresherTriggered.value = false
     emit('success', { list: normalized.list, response, page: nextPage })
+    ensureScrollable()
   } catch (error) {
     if (currentRequestId !== requestId) return
     status.value = 'error'
@@ -126,25 +181,53 @@ async function requestList(nextPage: number, mode: ListStatus) {
   }
 }
 
+async function ensureScrollable() {
+  if (checkingScrollable || isBusy.value || isFinished.value || isError.value) return
+
+  checkingScrollable = true
+  await nextTick()
+
+  const [containerRect, bodyRect] = await measureList()
+  checkingScrollable = false
+
+  const containerHeight = Number(containerRect?.height)
+  const bodyHeight = Number(bodyRect?.height)
+
+  if (!Number.isFinite(containerHeight) || !Number.isFinite(bodyHeight)) return
+  if (bodyHeight <= containerHeight + 1 && !isFinished.value && !isError.value) {
+    loadMore()
+  }
+}
+
 function refresh() {
   emit('refresh')
-  total.value = null
-  lastPageCount.value = props.pageSize
+  resetPaging()
   refresherTriggered.value = true
   requestList(props.pageStart, 'refreshing')
 }
 
 function reload() {
-  total.value = null
-  lastPageCount.value = props.pageSize
+  resetPaging()
   list.value = []
   requestList(props.pageStart, 'loading')
 }
 
 function loadMore() {
-  if (isFinished.value || isError.value) return
+  if (!canRequest('loadingMore') || isError.value) return
   emit('loadMore')
   requestList(page.value + 1, 'loadingMore')
+}
+
+function handleScroll(event: any) {
+  const detail = event?.detail || {}
+  const scrollTop = Number(detail.scrollTop)
+  const scrollHeight = Number(detail.scrollHeight)
+  const viewHeight = Number.parseFloat(finalHeight.value)
+
+  if (!Number.isFinite(scrollTop) || !Number.isFinite(scrollHeight) || !Number.isFinite(viewHeight)) return
+  if (scrollHeight - scrollTop - viewHeight <= 80) {
+    loadMore()
+  }
 }
 
 function retry() {
@@ -157,15 +240,17 @@ function retry() {
 
 watch(
   () => props.params,
-  () => reload(),
+  reload,
   { deep: true }
 )
 
 onMounted(() => {
+  calcHeight()
   if (props.immediate) {
     reload()
   }
 })
+
 
 defineExpose({
   refresh,
@@ -177,12 +262,15 @@ defineExpose({
 
 <template>
   <scroll-view
-    class="load-list"
+    :class="['load-list']"
     scroll-y
-    :style="{ height }"
+    :style="{ height: finalHeight }"
     :refresher-enabled="refresherEnabled"
     :refresher-triggered="refresherTriggered"
+    :lower-threshold="80"
+    :refresher-default-style="refresherStyle"
     @refresherrefresh="refresh"
+    @scroll="handleScroll"
     @scrolltolower="loadMore"
   >
     <view class="load-list__body">
@@ -208,12 +296,14 @@ defineExpose({
 <style scoped lang="scss">
 .load-list {
   width: 100%;
+  height: 100%;
   box-sizing: border-box;
 }
 
 .load-list__body {
   min-height: 100%;
   box-sizing: border-box;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 120rpx);
 }
 
 .load-list__item {

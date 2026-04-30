@@ -6,7 +6,9 @@ import CustomTabBar from '@/custom-tab-bar/index.vue'
 import { showModal } from '@/utils/toast'
 import { useUserStore } from '@/store/user'
 import { useAppStore } from '@/store/app'
+import { useDialog } from '@wot-ui/ui'
 
+const dialog = useDialog()
 const appStore = useAppStore()
 const userStore = useUserStore()
 const showTabBar = computed(() => appStore.activeTab === '/pages/tabs/user')
@@ -16,7 +18,7 @@ const userInfo = computed(() => userStore.userInfo)
 const menuList = ref([
   { name: '我的订单', path: '/pages-sub/order/index', icon: '📋' },
   { name: '收货地址', path: '', icon: '📍' },
-  { name: '联系客服', path: '', icon: '💬' },
+  { name: '联系客服', path: 'contact', icon: '💬' },
   { name: '切换身份 (退出登录)', path: '/pages/login/index', icon: '🔄', logout: true },
   { name: '设置', path: '', icon: '⚙️' },
 ])
@@ -48,6 +50,16 @@ function handleLogin() {
 
 
 function handleMenu(item: any) {
+  if(item.path === 'contact') {
+   dialog.confirm({
+    title: '联系客服',
+    confirmButtonProps: {
+      text: '联系客服',
+      openType: 'contact',
+    }
+  })
+    return
+  }
   if (!item.path) {
     uni.showToast({ title: '功能开发中', icon: 'none' })
     return
@@ -85,6 +97,7 @@ onShow(() => {
 
 <template>
   <view class="page-container">
+    <wd-dialog />
     <!-- 用户信息卡片 -->
     <view class="user-card">
       <view class="user-info" @click="handleLogin">
@@ -122,7 +135,7 @@ onShow(() => {
         <switch
           :checked="isDarkTheme"
           :color="switchColor"
-          @change="isDarkTheme = $event.detail.value"
+          @change="(e: any) => isDarkTheme = e.detail.value"
         />
       </view>
       <view class="setting-item">
@@ -133,7 +146,7 @@ onShow(() => {
         <switch
           :checked="isFloatingTabBar"
           :color="switchColor"
-          @change="isFloatingTabBar = $event.detail.value"
+          @change="(e: any) => isFloatingTabBar = e.detail.value"
         />
       </view>
     </view>

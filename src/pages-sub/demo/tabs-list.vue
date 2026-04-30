@@ -25,6 +25,12 @@ const tabsWithParams = computed(() => {
   }))
 })
 
+const activeTabConfig = computed(() => {
+  return tabsWithParams.value.find((item) => item.name === activeTab.value) || tabsWithParams.value[0]
+})
+
+const activeParams = computed(() => activeTabConfig.value.params)
+
 function mockApi(params: Record<string, any>) {
   const pageNo = Number(params.pageNo || 1)
   const pageSize = Number(params.pageSize || 10)
@@ -65,48 +71,38 @@ function handleTabChange(event: { name: string | number }) {
   <view class="page-container">
     <PageNavbar title="多标签列表" />
     <view class="page-body">
-      <view class="search-bar">
-        <input
-          v-model="filters.keyword"
-          class="search-input"
-          placeholder="输入关键词筛选"
-          confirm-type="search"
-        />
-        <wd-button size="small">搜索</wd-button>
-      </view>
-
       <wd-tabs
         v-model="activeTab"
+        custom-class="tabs-list-page__tabs"
         line-theme="text"
         @change="handleTabChange"
-        animated
-        swipeable
       >
         <wd-tab
           v-for="item in tabsWithParams"
           :key="item.name"
           :title="item.title"
           :name="item.name"
-        >
-          <view class="summary-row">
-            <text class="summary-title">{{ item.title }}</text>
-            <text class="summary-count">共 {{ item.total }} 条</text>
-          </view>
-
-          <LoadList
-            height="calc(100vh - 308rpx)"
-            :api="mockApi"
-            :params="item.params"
-            :page-size="8"
-            list-key="data.records"
-            total-key="data.total"
-          >
-            <template #item="{ item: row }">
-              <DemoListItem :item="row" />
-            </template>
-          </LoadList>
-        </wd-tab>
+        />
       </wd-tabs>
+
+      <view class="summary-row">
+        <text class="summary-title">{{ activeTabConfig.title }}</text>
+        <text class="summary-count">共 {{ activeTabConfig.total }} 条</text>
+      </view>
+
+      <LoadList
+        :key="activeTab"
+        auto-height
+        :api="mockApi"
+        :params="activeParams"
+        :page-size="8"
+        list-key="data.records"
+        total-key="data.total"
+      >
+        <template #item="{ item: row }">
+          <DemoListItem :item="row" />
+        </template>
+      </LoadList>
     </view>
   </view>
 </template>
@@ -114,21 +110,17 @@ function handleTabChange(event: { name: string | number }) {
 <style scoped lang="scss">
 .page-container {
   min-height: 100vh;
+  box-sizing: border-box;
   background-color: var(--app-bg-page);
+  display: flex;
+  flex-direction: column;
 }
 
 .page-body {
-  min-height: calc(100vh - 88px);
-}
-
-.search-bar {
-  height: 96rpx;
-  padding: 16rpx 24rpx;
-  box-sizing: border-box;
+  flex: 1;
   display: flex;
-  align-items: center;
-  gap: 16rpx;
-  background-color: var(--app-bg-card);
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .search-input {
@@ -147,7 +139,21 @@ function handleTabChange(event: { name: string | number }) {
   color: var(--app-input-text);
 }
 
+:deep(.tabs-list-page__tabs) {
+  flex: 0 0 auto;
+  background-color: var(--app-bg-page);
+}
+
+:deep(.wd-tabs__nav) {
+  border-bottom: 1rpx solid var(--app-divider);
+}
+
+:deep(.wd-tabs__container) {
+  display: none;
+}
+
 .summary-row {
+  flex: 0 0 auto;
   height: 64rpx;
   padding: 0 24rpx;
   display: flex;
@@ -169,6 +175,6 @@ function handleTabChange(event: { name: string | number }) {
 }
 
 :deep(.load-list__body) {
-  padding: 20rpx 24rpx;
+  padding: 20rpx 24rpx 0;
 }
 </style>

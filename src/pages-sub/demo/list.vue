@@ -12,7 +12,7 @@ const loadListRef = ref()
 function mockApi(params: Record<string, any>) {
   const pageNo = Number(params.pageNo || 1)
   const pageSize = Number(params.pageSize || 10)
-  const total = 23
+  const total = 30
   const start = (pageNo - 1) * pageSize
   const end = Math.min(start + pageSize, total)
 
@@ -49,19 +49,18 @@ function search() {
     <PageNavbar title="通用列表" />
     <view class="page-body">
       <view class="search-bar">
-        <input
-          v-model="filters.keyword"
-          class="search-input"
-          placeholder="输入关键词"
-          confirm-type="search"
-          @confirm="search"
-        />
-        <wd-button size="small" @click="search">搜索</wd-button>
-      </view>
-
+      <input
+        v-model="filters.keyword"
+        class="search-input"
+        placeholder="输入关键词"
+        confirm-type="search"
+        @confirm="search"
+      />
+      <wd-button size="small" @click="search">搜索</wd-button>
+    </view>
       <LoadList
         ref="loadListRef"
-        height="calc(100vh - 200rpx)"
+        auto-height
         :api="mockApi"
         :params="filters"
         list-key="data.records"
@@ -78,14 +77,21 @@ function search() {
 <style scoped lang="scss">
 .page-container {
   min-height: 100vh;
+  box-sizing: border-box;
   background-color: var(--app-bg-page);
+  display: flex;
+  flex-direction: column;
 }
 
 .page-body {
-  min-height: calc(100vh - 88px);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .search-bar {
+  flex-shrink: 0;
   height: 112rpx;
   padding: 20rpx 24rpx;
   box-sizing: border-box;
@@ -112,6 +118,6 @@ function search() {
 }
 
 :deep(.load-list__body) {
-  padding: 20rpx 24rpx;
+  padding: 20rpx 24rpx 0;
 }
 </style>
