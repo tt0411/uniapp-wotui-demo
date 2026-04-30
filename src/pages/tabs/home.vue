@@ -21,6 +21,7 @@ const features = ref([
   { name: '侧边悬浮菜单', path: '/pages-sub/demo/side-dock', icon: '🧲' },
   { name: '智能幕帘', path: '/pages-sub/demo/curtain', icon: '🎭' },
   { name: '复杂表单', path: '/pages-sub/demo/form', icon: '📝' },
+  { name: 'AI聊天', path: '/pages-sub/demo/ai-chat', icon: '🤖' },
   { name: '商城分包', path: '/pages-sub/shop/index', icon: '🛒' },
   { name: '订单分包', path: '/pages-sub/order/index', icon: '📋' },
 ])

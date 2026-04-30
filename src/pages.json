@@ -162,6 +162,13 @@
             "navigationBarTitleText": "复杂表单",
             "navigationStyle": "custom"
           }
+        },
+        {
+          "path": "ai-chat",
+          "style": {
+            "navigationBarTitleText": "AI聊天",
+            "navigationStyle": "custom"
+          }
         }
       ]
     }
