@@ -31,6 +31,11 @@ export function toWotThemeVars(tokens: ThemeTokens): Partial<ConfigProviderTheme
     tabsMapNavBtnColor: tokens.textPrimary,
     tabsMapArrowColor: tokens.textSecondary,
     tabsMapBtnBeforeBg: `linear-gradient(270deg, ${tokens.bgCard} 0%, rgba(255, 255, 255, 0) 100%)`,
+    gridItemBg: tokens.bgCard,
+    gridItemHoverBg: tokens.bgInteractive,
+    gridItemBorderColor: tokens.borderPrimary,
+    gridItemTextColor: tokens.textPrimary,
+    gridItemIconColor: tokens.textSecondary,
     tabbarBg: tokens.tabbarBg,
     tabbarItemColorActive: tokens.primary,
     tabbarItemColorInactive: tokens.textMuted
